@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Pintura Pronta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 15px;
+            padding-bottom: 160px; /* Espaço para o rodapé fixo */
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .client-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .comodo-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .comodo-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .btn-remove {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px; /* Evita zoom no iPhone */
+            background: #fafafa;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row .form-group {
+            flex: 1;
+        }
+        .result-box {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .result-box p {
+            margin-bottom: 5px;
+        }
+        .result-box .total-valor {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 5px;
+        }
+        .btn-add {
+            width: 100%;
+            padding: 15px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        /* Rodapé com ações */
+        .resumo-geral {
+            background: #343a40;
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+        .resumo-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .valor-final {
+            font-size: 22px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-action {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-save { background: #ffc107; color: #333 !important; }
+        .btn-whats { background: #25D366; }
+        .btn-history { background: #6c757d; }
+
+        /* Modal Histórico */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 { font-size: 20px; }
+        .btn-close-modal {
+            background: #dc3545; color: white; border: none;
+            padding: 5px 15px; border-radius: 5px; font-size: 16px; cursor: pointer;
+        }
+        .history-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .history-item h4 { color: #007bff; margin-bottom: 5px; }
+        .history-actions { margin-top: 10px; display: flex; gap: 10px; }
+        .btn-small { padding: 8px; border: none; border-radius: 5px; color: white; cursor: pointer; flex: 1; font-weight: bold;}
+        .btn-small-whats { background: #25D366; }
+        .btn-small-delete { background: #dc3545; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>📏 Pintura Pronta</h2>
+        <p>Orçamentos Rápidos e Profissionais</p>
+    </div>
+
+    <!-- Dados do Cliente -->
+    <div class="client-card">
+        <div class="form-group">
+            <label>Nome do Cliente</label>
+            <input type="text" id="cliente-nome" placeholder="Ex: João da Silva">
+        </div>
+        <div class="form-group">
+            <label>Telefone (com DDD, só números)</label>
+            <input type="tel" id="cliente-fone" placeholder="Ex: 11999887766">
+        </div>
+    </div>
+
+    <button class="btn-add" onclick="adicionarComodo()">+ Adicionar Cômodo</button>
+
+    <div id="lista-comodos">
+        <!-- Os cômodos vão aparecer aqui -->
+    </div>
+
+    <!-- Rodapé Fixo -->
+    <div class="resumo-geral">
+        <div class="resumo-row">
+            <span>Área Total:</span>
+            <span id="total-m2">0 m²</span>
+        </div>
+        <div class="resumo-row">
+            <span>Tinta (2 demãos):</span>
+            <span id="total-tinta">0 Litros</span>
+        </div>
+        <div class="resumo-row">
+            <span>VALOR TOTAL:</span>
+            <span class="valor-final" id="total-valor">R$ 0,00</span>
+        </div>
+        <div class="action-buttons">
+            <button class="btn-action btn-save" onclick="salvarOrcamento()">💾 Salvar</button>
+            <button class="btn-action btn-whats" onclick="enviarWhatsApp()">📱 WhatsApp</button>
+            <button class="btn-action btn-history" onclick="abrirHistorico()">📋 Histórico</button>
+        </div>
+    </div>
+
+    <!-- Modal do Histórico -->
+    <div id="modal-historico" class="modal-bg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Histórico</h2>
+                <button class="btn-close-modal" onclick="fecharHistorico()">X</button>
+            </div>
+            <div id="lista-historico">
+                <!-- Itens salvos aparecerão aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let comodoCount = 0;
+
+        function adicionarComodo() {
+            comodoCount++;
+            const div = document.createElement('div');
+            div.className = 'comodo-card';
+            div.id = `comodo-${comodoCount}`;
+            
+            div.innerHTML = `
+                <div class="comodo-title">Cômodo ${comodoCount}</div>
+                <button class="btn-remove" onclick="removerComodo(${comodoCount})">X</button>
+                
+                <div class="form-group">
+                    <label>Nome do Cômodo</label>
+                    <input type="text" id="nome-${comodoCount}" placeholder="Ex: Sala, Quarto..." oninput="calcular()">
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label>Largura (m)</label>
+                        <input type="number" id="largura-${comodoCount}" step="0.01" placeholder="Ex: 4.5" oninput="calcular()">
+                    </div>
+                    <div class="form-group">
+                        <label>Altura (m)</label>
+                        <input type="number" id="altura-${comodoCount}" step="0.01" value="2.80" placeholder="Ex: 2.80" oninput="calcular()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Desconto Portas/Janelas (m²)</label>
+                    <input type="number" id="desconto-${comodoCount}" step="0.01" placeholder="Ex: 2.5" oninput="calcular()">
+                </div>
+
+                <div class="form-group">
+                    <label>Preço por m² (R$)</label>
+                    <input type="number" id="preco-${comodoCount}" step="0.50" value="20.00" oninput="calcular()">
+                </div>
+
+                <div class="result-box">
+                    <p>Área a pintar: <strong><span id="res-area-${comodoCount}">0</span> m²</strong></p>
+                    <p>Tinta necessária:(2 demãos): <strong><span id="res-tinta-${comodoCount}">0</span> Litros</strong></p>
+                    <p class="total-valor">Valor: R$ <span id="res-valor-${comodoCount}">0,00</span></p>
+                </div>
+            `;
+            
+            document.getElementById('lista-comodos').appendChild(div);
+        }
+
+        function removerComodo(id) {
+            const comodo = document.getElementById(`comodo-${id}`);
+            if(comodo) {
+                comodo.remove();
+                calcular();
+            }
+        }
+
+        function calcular() {
+            let totalArea = 0;
+            let totalTinta = 0;
+            let totalValor = 0;
+
+            const cards = document.querySelectorAll('.comodo-card');
+            cards.forEach(card => {
+                const id = card.id.split('-')[1];
+
+                const largura = parseFloat(document.getElementById(`largura-${id}`).value) || 0;
+                const altura = parseFloat(document.getElementById(`altura-${id}`).value) || 0;
+                const desconto = parseFloat(document.getElementById(`desconto-${id}`).value) || 0;
+                const preco = parseFloat(document.getElementById(`preco-${id}`).value) || 0;
+
+                let area = (largura * altura) - desconto;
+                if(area < 0) area = 0;
+
+                let tinta = area / 5;
+                let valor = area * preco;
+
+                document.getElementById(`res-area-${id}`).innerText = area.toFixed(2);
+                document.getElementById(`res-tinta-${id}`).innerText = tinta.toFixed(1);
+                document.getElementById(`res-valor-${id}`).innerText = valor.toFixed(2).replace('.', ',');
+
+                totalArea += area;
+                totalTinta += tinta;
+                totalValor += valor;
+            });
+
+            document.getElementById('total-m2').innerText = totalArea.toFixed(2) + " m²";
+            document.getElementById('total-tinta').innerText = totalTinta.toFixed(1) + " Litros";
+            document.getElementById('total-valor').innerText = "R$ " + totalValor.toFixed(2).replace('.', ',');
+        }
+
+        // Funções Novas: Salvar, WhatsApp e Histórico
+
+        function coletarDadosAtuais() {
+            let comodos = [];
+            const cards = document.querySelectorAll('.comodo-card');
+            
+            cards.forEach(card => {
+                const id = card.id.split('-')[1];
+                comodos.push({
+                    nome: document.getElementById(`nome-${id}`).value || `Cômodo ${id}`,
+                    area: document.getElementById(`res-area-${id}`).innerText,
+                    tinta: document.getElementById(`res-tinta-${id}`).innerText,
+                    valor: document.getElementById(`res-valor-${id}`).innerText
+                });
+            });
+
+            return {
+                cliente: document.getElementById('cliente-nome').value || "Não informado",
+                fone: document.getElementById('cliente-fone').value,
+                data: new Date().toLocaleDateString('pt-BR'),
+                comodos: comodos,
+                totalArea: document.getElementById('total-m2').innerText,
+                totalTinta: document.getElementById('total-tinta').innerText,
+                totalValor: document.getElementById('total-valor').innerText
+            };
+        }
+
+        function enviarWhatsApp(dados = null) {
+            if (!dados) {
+                dados = coletarDadosAtuais();
+            }
+
+            if (dados.comodos.length === 0) {
+                alert("Adicione pelo menos um cômodo antes de enviar!");
+                return;
+            }
+
+            let texto = `*ORÇAMENTO - SERVIÇO DE PINTURA*\n`;
+            texto += `📅 Data: ${dados.data}\n`;
+            texto += `👤 Cliente: ${dados.cliente}\n\n`;
+            
+            dados.comodos.forEach(c => {
+                texto += `🏠 *${c.nome}*\n`;
+                texto += `   ➡ Área: ${c.area} m²\n`;
+                texto += `   ➡ Tinta: ${c.tinta} L\n`;
+                texto += `   ➡ Valor: R$ ${c.valor}\n\n`;
+            });
+
+            texto += `*RESUMO DO ORÇAMENTO:*\n`;
+            texto += `📏 Área Total: ${dados.totalArea}\n`;
+            texto += `🪣 Tinta (2 demãos): Total: ${dados.totalTinta}\n`;
+            texto += `💰 *VALOR TOTAL: ${dados.totalValor}*\n\n`;
+            texto += `_Orçamento válido por 7 dias._`;
+
+            // Se tiver telefone, manda direto pro contato, se não, abre pra escolher
+            let fone = dados.fone.replace(/\D/g, ''); // Remove máscaras
+            let link = fone ? `https://wa.me/55${fone}?text=` : `https://wa.me/?text=`;
+            
+            window.open(link + encodeURIComponent(texto), '_blank');
+        }
+
+        function salvarOrcamento() {
+            let dados = coletarDadosAtuais();
+            if (dados.comodos.length === 0) {
+                alert("Adicione pelo menos um cômodo antes de salvar!");
+                return;
+            }
+
+            let historico = JSON.parse(localStorage.getItem('historicoPintura')) || [];
+            historico.push(dados);
+            localStorage.setItem('historicoPintura', JSON.stringify(historico));
+
+            alert("✅ Orçamento salvo com sucesso no seu celular!");
+        }
+
+        function abrirHistorico() {
+            let historico = JSON.parse(localStorage.getItem('historicoPintura')) || [];
+            let listaHtml = document.getElementById('lista-historico');
+
+            if (historico.length === 0) {
+                listaHtml.innerHTML = "<p style='text-align:center; color:#999;'>Nenhum orçamento salvo ainda.</p>";
+            } else {
+                listaHtml.innerHTML = "";
+                historico.reverse().forEach((item, index) => {
+                    // Invertemos o index para deletar o correto depois
+                    let realIndex = historico.length - 1 - index; 
+                    
+                    listaHtml.innerHTML += `
+                        <div class="history-item">
+                            <h4>${item.cliente}</h4>
+                            <p>Data: ${item.data} | Valor: ${item.totalValor}</p>
+                            <p>Área: ${item.totalArea}</p>
+                            <div class="history-actions">
+                                <button class="btn-small btn-small-whats" onclick="enviarWhatsApp(historico[${realIndex}])">📱 WhatsApp</button>
+                                <button class="btn-small btn-small-delete" onclick="deletarOrcamento(${realIndex})">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('modal-historico').style.display = 'block';
+        }
+
+        function fecharHistorico() {
+            document.getElementById('modal-historico').style.display = 'none';
+        }
+
+        function deletarOrcamento(index) {
+            let historico = JSON.parse(localStorage.getItem('historicoPintura')) || [];
+            historico.splice(index, 1);
+            localStorage.setItem('historicoPintura', JSON.stringify(historico));
+            abrirHistorico(); // Atualiza a lista
+        }
+
+        // Adiciona o primeiro cômodo ao abrir
+        window.onload = adicionarComodo;
+
+    </script>
+</body>
+</html>
