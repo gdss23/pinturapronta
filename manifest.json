@@ -1,7 +1,7 @@
 {
-  "name": "NOME COMPLETO DO SEU APP",
-  "short_name": "NOME CURTO",
-  "description": "Uma breve descrição do que o app faz",
+  "name": "pintura pronta",
+  "short_name": "orçamento",
+  "description": "orçamento rápido e profissionais",
   "start_url": "index.html",
   "display": "fullscreen",
   "background_color": "#000000",
